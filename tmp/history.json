@@ -1,0 +1,12 @@
+[
+    {
+        "amount": 1,
+        "id": 1,
+        "id_product": 1,
+        "id_store": 2,
+        "id_via": 1,
+        "price": 18720,
+        "seller": "orang gila",
+        "time": "2021-09-13 20:32:00"
+    }
+]

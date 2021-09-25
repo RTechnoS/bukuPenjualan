@@ -1,0 +1,16 @@
+[
+    {
+        "added_time": "2021-09-13 20:17:00",
+        "id": 1,
+        "name": "kios.rusman",
+        "note": "Milik rusman",
+        "owner": "rusman"
+    },
+    {
+        "added_time": "2021-09-13 20:18:00",
+        "id": 2,
+        "name": "kidsgamestore",
+        "note": "toko jual asset game",
+        "owner": "kidsgamestore"
+    }
+]
