@@ -27,8 +27,6 @@ def f_price(jumlah): #mengubah angka contoh : 3200000 menjadi 3.200.000
 	return jumlah
 
 FUNGSI = fungsi.Main()
-connect = FUNGSI.getConnect
-cur = FUNGSI.getCur
 
 class Dashboard:
 	def __init__(self, master):
@@ -64,6 +62,9 @@ class Dashboard:
 
 		self.win.mainloop()
 
+
+	def update_data(self):
+		self.update_list_product_type(self.raw_store[self.__combo_store.current()][0])
 
 	def update_list_product_type(self, id_store=1):
 		self.raw_product_type = FUNGSI.getProduct_type(id_store=id_store)
@@ -156,8 +157,6 @@ class Dashboard:
 		frm_detail = tk.Frame(self.frm_atas)
 		frm_detail.grid(row=0, column=0, sticky="W")
 
-
-		
 		tk.Label(frm_detail, text = 'store          ').grid(row=0, column=0, sticky="W")
 		
 		self.__combo_store = ttk.Combobox(frm_detail, state='readonly', textvariable=self.var_store, values=self.list_store, width=25)
@@ -235,11 +234,15 @@ class Dashboard:
 			print('\033[1;37;41m[FAIL]\033[0m ', hasil['pesan'])
 			messagebox.showerror('Gagal', hasil['pesan'])
 			if hasil['code'] == 1:
-				self.update_list_product_type(self.raw_store[self.__combo_store.current()][0])
+				pass
 
 			elif hasil['code'] == 2:
-				self.update_list_product_type(self.raw_store[self.__combo_store.current()][0])
+				pass
 
 			elif hasil['code'] == 3:
 				print('error code 3')
+
+			
+		self.update_data()
+
 Dashboard(tk.Tk())

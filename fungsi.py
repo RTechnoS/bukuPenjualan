@@ -26,69 +26,81 @@ class DB:
 			logging.exception('Database Disconnect !!')
 			self.status = False
 
-	@property
-	def getConnect(self):
-		return self.__connect
+	def __runQuery(self, q='', fetch='all', method=1):
+		# method 1 = select, 2 = insert
+		hasil = False
+		if q != '':
+			try:
+				self.__cur.execute(q)
+				if method == 1:
+					if fetch == 'all':
+						hasil = self.__cur.fetchall()
+					else:
+						hasil = self.__cur.fetchone()
+				
+				elif method == 2:
+					self.__connect.commit()
+					hasil = True
 
-	@property
-	def getCur(self):
-		return self.__cur
+			except:
+				hasil = False
+
+			return hasil
+
 
 	def getStore(self, q=False):
 		if q:
-			self.__cur.execute(f'SELECT {q} from store')
+			list_store = self.__runQuery(f'SELECT {q} from store')
 		else:
-			self.__cur.execute(f'SELECT * from store')
-		list_store = self.__cur.fetchall()
+			list_store = self.__runQuery(f'SELECT * from store')
 		return list_store
 
 	def getVia(self, id_store=False):
 		if id_store:
-			self.__cur.execute(f'SELECT * from via where id_store={id_store}')
+			list_via = self.__runQuery(f'SELECT * from via where id_store={id_store}')
 		else:
-			self.__cur.execute(f'SELECT * from via')
-
-		list_via = self.__cur.fetchall()
+			list_via = self.__runQuery(f'SELECT * from via')
 		return list_via
 
 	def getProduct_type(self, id_store=False):
 		if id_store:
-			self.__cur.execute(f'SELECT * from product_type where id_store={id_store}')
+			list_product_type = self.__runQuery(f'SELECT * from product_type where id_store={id_store}')
 		else:
-			self.__cur.execute(f'SELECT * from product_type')
-
-
-		list_product_type = self.__cur.fetchall()
+			list_product_type = self.__runQuery(f'SELECT * from product_type')
 		return list_product_type
 
 	def getProduct(self, id_product_type=False):
 		if id_product_type:
-			self.__cur.execute(f'SELECT * from product where id_product_type={id_product_type}')
+			list_product = self.__runQuery(f'SELECT * from product where id_product_type={id_product_type}')
 		else:
-			self.__cur.execute(f'SELECT * from product')
-
-		list_product = self.__cur.fetchall()
+			list_product = self.__runQuery(f'SELECT * from product')
 		return list_product
 
 
-	def testJoinProduct(self, id_store=2):
-		self.__cur.execute('SELECT product_type.id_store, product_type.name, product.name, product.price, product.note FROM product_type INNER JOIN product ON product_type.id_product_type = product.id_product_type')
-		return self.__cur.fetchall()
+	# def testJoinProduct(self, id_store=2):
+	# 	self.__runQuery('SELECT product_type.id_store, product_type.name, product.name, product.price, product.note FROM product_type INNER JOIN product ON product_type.id_product_type = product.id_product_type')
+	# 	return self.__cur.fetchall()
 
+
+
+
+class Main(DB):
+	def __init__(self, dbLok='testing.db'):
+		super().__init__(dbLok)
+		
 	def submitHistory(self, id_store, id_product_type, id_product, id_via, price, time, amount, seller):
-		self.__cur.execute(f'SELECT price from product where id_product={id_product} LIMIT 1')
-		get_price = self.__cur.fetchone()
+		get_price = self.__runQuery(f'SELECT price from product where id_product={id_product} LIMIT 1', fetch='one')
 		if get_price != None:
 			if price == get_price[0]*amount:
 				price = get_price[0]*amount
-				try:
-					q = f'INSERT INTO history(id_store, id_product_type, id_product, amount, id_via, price, seller, time) VALUES ({id_store}, {id_product_type}, {id_product}, {amount}, {id_via}, {price}, "{seller}", "{time} {f_time()[0]}")'
-					self.__cur.execute(q)
-					self.__connect.commit()
+
+				q = self.__runQuery(f'INSERT INTO history(id_store, id_product_type, id_product, amount, id_via, price, seller, time) VALUES ({id_store}, {id_product_type}, {id_product}, {amount}, {id_via}, {price}, "{seller}", "{time} {f_time()[0]}")', method=2)
+				if q:
 					hasil = {'status':True, 'pesan':'Succes Ditambahkan', 'time':f"{time} {f_time()[0]}", 'price':price}
-				except:
+				else:
 					logging.exception('Database Error')
 					hasil = {'status':False, 'pesan':'Database error. Please wait', 'code':3}
+				
 			else:
 				logging.warning(f'Input tidak sesuai dengan harga database | {price} != { get_price[0]*amount}')
 				hasil = {'status':False, 'pesan':'Harga tidak sesuai, silahkan pilih ulang produk', 'code':1}
@@ -97,11 +109,6 @@ class DB:
 			hasil = {'status':False, 'pesan':'Produk tidak ada atau telah habis', 'code':2}
 
 		return hasil
-
-
-class Main(DB):
-	def __init__(self, dbLok='testing.db'):
-		super().__init__(dbLok)
 
 
 
