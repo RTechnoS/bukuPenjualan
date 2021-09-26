@@ -1,6 +1,10 @@
 import datetime
 import sqlite3 as sqlite
 from datetime import datetime
+import logging
+import sys
+
+logging.basicConfig(format='[%(asctime)s] %(levelname)-8s: %(message)s',datefmt="%Y-%m-%d %H:%M:%S", level=logging.INFO, handlers=[logging.FileHandler('./log.log'), logging.StreamHandler(sys.stdout)])
 
 def to_dict_index(data):
 	h = {}
@@ -72,10 +76,27 @@ class DB:
 		return self.__cur.fetchall()
 
 	def submitHistory(self, id_store, id_product_type, id_product, id_via, price, time, amount, seller):
-		q = f'INSERT INTO history(id_store, id_product_type, id_product, amount, id_via, price, seller, time) VALUES ({id_store}, {id_product_type}, {id_product}, {amount}, {id_via}, {price}, "{seller}", "{time} {f_time()[0]}")'
-		self.__cur.execute(q)
-		self.__connect.commit()
-		print('Submit Succes')
+		self.__cur.execute(f'SELECT price from product where id_product={id_product} LIMIT 1')
+		get_price = self.__cur.fetchone()
+		if get_price != None:
+			if price == get_price[0]*amount:
+				price = get_price[0]*amount
+				try:
+					q = f'INSERT INTO history(id_store, id_product_type, id_product, amount, id_via, price, seller, time) VALUES ({id_store}, {id_product_type}, {id_product}, {amount}, {id_via}, {price}, "{seller}", "{time} {f_time()[0]}")'
+					self.__cur.execute(q)
+					self.__connect.commit()
+					hasil = {'status':True, 'pesan':'Succes Ditambahkan', 'time':f"{time} {f_time()[0]}", 'price':price}
+				except:
+					logging.exception('Database Error')
+					hasil = {'status':False, 'pesan':'Database error. Please wait', 'code':3}
+			else:
+				logging.warning(f'Input tidak sesuai dengan harga database | {price} != { get_price[0]*amount}')
+				hasil = {'status':False, 'pesan':'Harga tidak sesuai, silahkan pilih ulang produk', 'code':1}
+		else:
+			logging.warning('Produk tidak ditemukan')
+			hasil = {'status':False, 'pesan':'Produk tidak ada atau telah habis', 'code':2}
+
+		return hasil
 
 
 class Main(DB):

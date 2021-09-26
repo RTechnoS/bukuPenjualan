@@ -1,0 +1,7 @@
+[2021-09-26 15:08:02] ERROR   : Database Error
+Traceback (most recent call last):
+  File "/media/rtechs/rusman2/program/py/penjualanGame/fungsi.py", line 86, in submitHistory
+    self.__cur.execute(q)
+sqlite3.OperationalError: database is locked
+[2021-09-26 15:08:40] WARNING : Input tidak sesuai dengan harga database
+[2021-09-26 15:10:52] WARNING : Input tidak sesuai dengan harga database | 18721 != 18720
