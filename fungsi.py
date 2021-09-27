@@ -76,18 +76,6 @@ class DB:
 			list_product = self.__runQuery(f'SELECT * from product')
 		return list_product
 
-
-	# def testJoinProduct(self, id_store=2):
-	# 	self.__runQuery('SELECT product_type.id_store, product_type.name, product.name, product.price, product.note FROM product_type INNER JOIN product ON product_type.id_product_type = product.id_product_type')
-	# 	return self.__cur.fetchall()
-
-
-
-
-class Main(DB):
-	def __init__(self, dbLok='testing.db'):
-		super().__init__(dbLok)
-		
 	def submitHistory(self, id_store, id_product_type, id_product, id_via, price, time, amount, seller):
 		get_price = self.__runQuery(f'SELECT price from product where id_product={id_product} LIMIT 1', fetch='one')
 		if get_price != None:
@@ -109,6 +97,18 @@ class Main(DB):
 			hasil = {'status':False, 'pesan':'Produk tidak ada atau telah habis', 'code':2}
 
 		return hasil
+	# def testJoinProduct(self, id_store=2):
+	# 	self.__runQuery('SELECT product_type.id_store, product_type.name, product.name, product.price, product.note FROM product_type INNER JOIN product ON product_type.id_product_type = product.id_product_type')
+	# 	return self.__cur.fetchall()
+
+
+
+
+class Main(DB):
+	def __init__(self, dbLok='testing.db'):
+		super().__init__(dbLok)
+		
+
 
 
 
