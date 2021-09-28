@@ -28,19 +28,10 @@ def f_price(jumlah): #mengubah angka contoh : 3200000 menjadi 3.200.000
 
 FUNGSI = fungsi.Main()
 
-class Dashboard:
-	def __init__(self, master):
-		self.win = master
-		self.win.geometry('700x450')
-		self.win.title('Penjualan Game')
-		self.win.resizable(False, False)
-
+class Main:
+	def __init__(self):
 		self.waktu, self.hari = f_time()
-
-		self.frm_utama = tk.Frame(self.win)
-		self.frm_utama.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
-
-		self.raw_store = FUNGSI.getStore(q='id_store,name')
+		self.raw_store = FUNGSI.getStore(q='singkat')
 		self.list_store = [f"{i[1]}"for i in self.raw_store]
 
 		self.list_product_type = []
@@ -57,19 +48,14 @@ class Dashboard:
 		self.var_seller = tk.StringVar(); self.var_seller.set('')
 		self.harga = 0
 
-		self.sty_atas()
-		self.sty_bawah()
-
-		self.win.mainloop()
-
 
 	def update_data(self):
-		self.update_list_product_type(self.raw_store[self.__combo_store.current()][0])
+		self.update_list_product_type(self.raw_store[self.combo_store.current()][0])
 
 	def update_list_product_type(self, id_store=1):
 		self.raw_product_type = FUNGSI.getProduct_type(id_store=id_store)
 		self.list_product_type = [f"{i[2]}"for i in self.raw_product_type]
-		self.__combo_product_type['values'] = self.list_product_type
+		self.combo_product_type['values'] = self.list_product_type
 		if len(self.list_product_type) != 0:
 			self.var_product_type.set(self.list_product_type[0])
 			self.update_list_product(self.raw_product_type[0][0]) 
@@ -81,7 +67,7 @@ class Dashboard:
 		if status:
 			self.raw_product = FUNGSI.getProduct(id_product_type)
 			self.list_product = [f"{i[3]} "for i in self.raw_product]
-			self.__combo_product['values'] = self.list_product
+			self.combo_product['values'] = self.list_product
 			if len(self.list_product) != 0:
 				self.var_product.set(self.list_product[0])
 				self.update_price(self.raw_product[0])
@@ -89,20 +75,20 @@ class Dashboard:
 				self.var_product.set('')
 				self.update_price(status=False)
 		else:
-			self.__combo_product['values'] = []
+			self.combo_product['values'] = []
 			self.var_product.set('')
 			self.update_price(status=False)
 
 	def update_list_via(self, id_store=1):
 		self.raw_via = FUNGSI.getVia(id_store=id_store)
 		self.list_via = [f"{i[2]}-{i[3]}" for i in self.raw_via]
-		self.__combo_via['values'] = self.list_via
+		self.combo_via['values'] = self.list_via
 		if len(self.list_via) != 0:
 			self.var_via.set(self.list_via[0])
 		else:
 			self.var_via.set('')
 
-	def update_price(self, data_product=0, status=True):
+	def update_price(self, data_product={}, status=True):
 		self.var_amount.set(1)
 		if status:
 			self.harga = data_product[4]
@@ -111,21 +97,21 @@ class Dashboard:
 		self.var_price.set(f_price(self.harga))
 
 	def changeStore(self, *args):
-		id_store = self.raw_store[self.__combo_store.current()][0]
+		id_store = self.raw_store[self.combo_store.current()][0]
 
 		self.update_list_product_type(id_store)
 		self.update_list_via(id_store)
 
 	def changeProduct_type(self, *args):
-		id_product_type = self.raw_product_type[self.__combo_product_type.current()][0]
-		#print('\nproduct_type = ', self.raw_product_type[self.__combo_product_type.current()])
+		id_product_type = self.raw_product_type[self.combo_product_type.current()][0]
+		#print('\nproduct_type = ', self.raw_product_type[self.combo_product_type.current()])
 
 		self.update_list_product(id_product_type)
 
 	def changeProduct(self, *args):
-		# id_product = self.raw_product[self.__combo_product.current()][0]
+		# id_product = self.raw_product[self.combo_product.current()][0]
 		# print('\nid_product = ', id_product)
-		self.update_price(self.raw_product[self.__combo_product.current()])
+		self.update_price(self.raw_product[self.combo_product.current()])
 		#print(self.raw_product[id_product][4])
 		#price = self.list_product
 
@@ -143,15 +129,39 @@ class Dashboard:
 
 ################### Bagian window utama ###########################
 
+
+class Dashboard(Main):
+	def __init__(self, master):
+		super().__init__()
+		self.win = master
+		self.win.geometry('700x450')
+		self.win.title('Penjualan Game')
+		self.win.resizable(False, False)
+
+		self.frm_utama = tk.Frame(self.win)
+		self.frm_utama.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
+
+		self.sty_atas()
+		self.sty_bawah()
+
+		self.win.mainloop()
+
 	def sty_atas(self):
 		self.frm_atas = tk.Frame(self.frm_utama)
 		self.frm_atas.pack(fill=tk.BOTH, expand=True)
 		self.def_frm_option()
 		self.def_frm_product()
 
-		self.__txt_price = tk.Label(self.frm_atas, textvariable=self.var_price, font=("Arial", 45))
-		self.__txt_price.grid(row=3, column=0)
+		self.txt_price = tk.Label(self.frm_atas, textvariable=self.var_price, font=("Arial", 45))
+		self.txt_price.grid(row=3, column=0)
 
+	def update_price(self, data_product={}, status=True):
+		self.var_amount.set(1)
+		if status:
+			self.harga = data_product[4]
+		else:
+			self.harga = 0
+		self.var_price.set(f_price(self.harga))
 	def sty_bawah(self):
 		self.frm_bawah = tk.Frame(self.frm_utama)
 		self.frm_bawah.pack(fill=tk.BOTH)
@@ -164,44 +174,44 @@ class Dashboard:
 
 		tk.Label(frm_detail, text = 'store          ').grid(row=0, column=0, sticky="W")
 		
-		self.__combo_store = ttk.Combobox(frm_detail, state='readonly', textvariable=self.var_store, values=self.list_store, width=25)
-		self.__combo_store.grid(row=0, column=1)
-		self.__combo_store.bind('<<ComboboxSelected>>', self.changeStore)
+		self.combo_store = ttk.Combobox(frm_detail, state='readonly', textvariable=self.var_store, values=self.list_store, width=25)
+		self.combo_store.grid(row=0, column=1)
+		self.combo_store.bind('<<ComboboxSelected>>', self.changeStore)
 
 		tk.Label(frm_detail, text = '          ').grid(row=0, column=2, sticky="W")
 
 		tk.Label(frm_detail, text = 'Tanggal    : ').grid(row=0, column=3, sticky="W")
-		self.__txt_tanggal = tk.Entry(frm_detail, textvariable=self.var_tanggal)
-		self.__txt_tanggal.grid(row=0, column=4)
+		self.txt_tanggal = tk.Entry(frm_detail, textvariable=self.var_tanggal)
+		self.txt_tanggal.grid(row=0, column=4)
 
 	def def_frm_product(self):
 		frm_option = tk.Frame(self.frm_atas)
 		frm_option.grid(row=1, column=0, pady=20)
 
 		tk.Label(frm_option, text = 'Jenis').grid(row=0, column=0, sticky="W", pady=3)
-		self.__combo_product_type = ttk.Combobox(frm_option, state='readonly',textvariable=self.var_product_type, values=self.list_product, width=25)
-		self.__combo_product_type.grid(row=0, column=1)
-		self.__combo_product_type.bind('<<ComboboxSelected>>', self.changeProduct_type)
+		self.combo_product_type = ttk.Combobox(frm_option, state='readonly',textvariable=self.var_product_type, values=self.list_product, width=25)
+		self.combo_product_type.grid(row=0, column=1)
+		self.combo_product_type.bind('<<ComboboxSelected>>', self.changeProduct_type)
 		
 		tk.Label(frm_option, text = 'Product').grid(row=1, column=0, sticky="W", pady=3)
-		self.__combo_product = ttk.Combobox(frm_option, state='readonly',textvariable=self.var_product, values=self.list_product,width=25)
-		self.__combo_product.grid(row=1, column=1)
-		self.__combo_product.bind('<<ComboboxSelected>>', self.changeProduct)
+		self.combo_product = ttk.Combobox(frm_option, state='readonly',textvariable=self.var_product, values=self.list_product,width=25)
+		self.combo_product.grid(row=1, column=1)
+		self.combo_product.bind('<<ComboboxSelected>>', self.changeProduct)
 
 		tk.Label(frm_option, text = 'Pembayaran').grid(row=2, column=0, sticky="W", pady=3)
-		self.__combo_via = ttk.Combobox(frm_option, state='readonly',textvariable=self.var_via, values=self.list_via,width=25)
-		self.__combo_via.grid(row=2, column=1)
+		self.combo_via = ttk.Combobox(frm_option, state='readonly',textvariable=self.var_via, values=self.list_via,width=25)
+		self.combo_via.grid(row=2, column=1)
 
 		tk.Label(frm_option, text = '          ').grid(row=0, column=2, sticky="W")
 
 		tk.Label(frm_option, text = 'Pembeli').grid(row=0, column=3, sticky="W")
-		self.__txt_seller = tk.Entry(frm_option, textvariable=self.var_seller,width=27)
-		self.__txt_seller.grid(row=0, column=4)
+		self.txt_seller = tk.Entry(frm_option, textvariable=self.var_seller,width=27)
+		self.txt_seller.grid(row=0, column=4)
 
 		tk.Label(frm_option, text = 'Jumlah').grid(row=1, column=3, sticky="W")
-		self.__txt_amount = tk.Entry(frm_option, textvariable=self.var_amount,width=27)
-		self.__txt_amount.grid(row=1, column=4)
-		self.__txt_amount.bind("<KeyRelease>", self.changeAmount)
+		self.txt_amount = tk.Entry(frm_option, textvariable=self.var_amount,width=27)
+		self.txt_amount.grid(row=1, column=4)
+		self.txt_amount.bind("<KeyRelease>", self.changeAmount)
 
 		tk.Button(frm_option, text='Submit', bg='#0086E6', command=self.processSubmit).grid(row=4, column=0, sticky="W", pady=15)
 
@@ -215,14 +225,14 @@ class Dashboard:
 
 	def processSubmit(self):
 		data = {}
-		if self.__combo_store.current() >= 0:
-			data['id_store'] = self.raw_store[self.__combo_store.current()][0]
-			if self.__combo_product_type.current() >= 0:
-				data['id_product_type'] = self.raw_product_type[self.__combo_product_type.current()][0]
-				if self.__combo_product.current() >= 0:
-					data['id_product'] = self.raw_product[self.__combo_product.current()][0]
-					if self.__combo_via.current() >= 0:
-						data['id_via'] = self.raw_via[self.__combo_via.current()][0]
+		if self.combo_store.current() >= 0:
+			data['id_store'] = self.raw_store[self.combo_store.current()][0]
+			if self.combo_product_type.current() >= 0:
+				data['id_product_type'] = self.raw_product_type[self.combo_product_type.current()][0]
+				if self.combo_product.current() >= 0:
+					data['id_product'] = self.raw_product[self.combo_product.current()][0]
+					if self.combo_via.current() >= 0:
+						data['id_via'] = self.raw_via[self.combo_via.current()][0]
 						if int(self.var_amount.get()) > 0:
 							data['amount'] = int(self.var_amount.get())
 							if int(self.harga) > 0:
@@ -264,14 +274,16 @@ class Admin:
 		pass
 
 
-class Grafik:
+class Grafik(Main):
 	def __init__(self, Master):
+		super().__init__()
 		self.winGrafik = tk.Toplevel(Master)
 		self.winGrafik.geometry('700x450')
-		self.raw_store = FUNGSI.getStore(q='id_store,name')
-		self.list_store = [f"{i[1]}"for i in self.raw_store]
-		self.var_store = tk.StringVar(); self.var_store.set('')
 
+		self.var_cekbox_store = tk.IntVar()
+		self.var_cekbox_product_type = tk.IntVar()
+		self.var_cekbox_product = tk.IntVar()
+		self.var_cekbox_via = tk.IntVar()
 
 		self.winGrafik.title('Grafik Penjualan')
 		self.sty_atas()
@@ -279,7 +291,7 @@ class Grafik:
 
 	def sty_atas(self):
 		self.frm_atas = tk.Frame(self.winGrafik)
-		self.frm_atas.pack()
+		self.frm_atas.pack(fill=tk.BOTH, expand=True, pady=12, padx=12)
 		self.def_frm_grafik()
 
 	def def_frm_grafik(self):
@@ -288,26 +300,70 @@ class Grafik:
 
 		tk.Label(frm_grafik_atas, text = 'store          ').grid(row=0, column=0, sticky="W")
 		
-		self.__combo_store = ttk.Combobox(frm_grafik_atas, state='readonly', textvariable=self.var_store, values=self.list_store, width=25)
-		self.__combo_store.grid(row=0, column=1)
-		#self.__combo_store.bind('<<ComboboxSelected>>', self.changeStore)
+		self.combo_store = ttk.Combobox(frm_grafik_atas, state='readonly', textvariable=self.var_store, values=self.list_store, width=25)
+		self.combo_store.grid(row=0, column=1); self.combo_store.bind('<<ComboboxSelected>>', self.changeStore)
+		cekbox_store = tk.Checkbutton(frm_grafik_atas, text='Store', variable=self.var_cekbox_store)
+		cekbox_store.select()
+		cekbox_store.config(state='disabled')
+		cekbox_store.grid(row=0, column=2)
+
+		tk.Label(frm_grafik_atas, text = 'Jenis').grid(row=1, column=0, sticky="W", pady=3)
+		self.combo_product_type = ttk.Combobox(frm_grafik_atas, state='readonly',textvariable=self.var_product_type, values=self.list_product, width=25)
+		self.combo_product_type.grid(row=1, column=1)
+		self.combo_product_type.bind('<<ComboboxSelected>>', self.changeProduct_type)
+		cekbox_product_type = tk.Checkbutton(frm_grafik_atas, text='Product Type', variable=self.var_cekbox_product_type)
+		cekbox_product_type.grid(row=1, column=2)
+
+		tk.Label(frm_grafik_atas, text = 'Product').grid(row=2, column=0, sticky="W", pady=3)
+		self.combo_product = ttk.Combobox(frm_grafik_atas, state='readonly',textvariable=self.var_product, values=self.list_product,width=25)
+		self.combo_product.grid(row=2, column=1)
+		self.combo_product.bind('<<ComboboxSelected>>', self.changeProduct)
+		cekbox_product = tk.Checkbutton(frm_grafik_atas, text='Product', variable=self.var_cekbox_product)
+		cekbox_product.grid(row=2, column=2)
 		
-		tk.Button(frm_grafik_atas, text='Test', command=self.getHistory).grid(row=1, column=0)
+		tk.Label(frm_grafik_atas, text = 'Pembayaran').grid(row=3, column=0, sticky="W", pady=3)
+		self.combo_via = ttk.Combobox(frm_grafik_atas, state='readonly',textvariable=self.var_via, values=self.list_via,width=25)
+		self.combo_via.grid(row=3, column=1)
+		cekbox_via = tk.Checkbutton(frm_grafik_atas, text='Via', variable=self.var_cekbox_via)
+		cekbox_via.grid(row=3, column=2)
 
-	def getHistory(self):
+		tk.Button(frm_grafik_atas, text='Search', command=self.getHistoryFilter).grid(row=4, column=0, sticky='W')
+
+	def update_price(self, data_product={}, status=True):
+		pass
+
+	def getHistoryFilter(self):
 		data = {}
-		if self.__combo_store.current() >= 0:
-			data['id_store'] = self.raw_store[self.__combo_store.current()][0]
-			if self.__combo_product_type.current() >= 0:
-				data['id_product_type'] = self.raw_product_type[self.__combo_product_type.current()][0]
-				if self.__combo_product.current() >= 0:
-					data['id_product'] = self.raw_product[self.__combo_product.current()][0]
-					if self.__combo_via.current() >= 0:
-						data['id_via'] = self.raw_via[self.__combo_via.current()][0]
-						if int(self.var_amount.get()) > 0:
+
+		if self.combo_store.current() >= 0:
+			data['id_store'] = self.raw_store[self.combo_store.current()][0]
+
+			if self.var_cekbox_product_type.get():
+				if self.combo_product_type.current() >= 0:
+					data['id_product_type'] = self.raw_product_type[self.combo_product_type.current()][0]
+
+			if self.var_cekbox_product.get():
+				if self.combo_product.current() >= 0:
+					data['id_product'] = self.raw_product[self.combo_product.current()][0]
+
+			if self.var_cekbox_via.get():
+				if self.combo_via.current() >= 0:
+					data['id_via'] = self.raw_via[self.combo_via.current()][0]
+
+		self.getHistory(data)
 
 
+	def getHistory(self, data):
+		hasil = FUNGSI.getHistory(data)
+		
+		pendapatan = 0
+		for i in hasil:
+			print(i)
+			pendapatan+=i[6]
+
+		print('Pendapatan : ', f_price(pendapatan))
+
+		print('\n', '='*70, '\n')
 
 
-
-run = Dashboard(tk.Tk())
+Dashboard(tk.Tk())

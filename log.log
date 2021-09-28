@@ -14,3 +14,8 @@ sqlite3.OperationalError: database is locked
 NoneType: None
 [2021-09-26 17:31:44] ERROR   : Database Error
 NoneType: None
+[2021-09-28 20:56:16] ERROR   : Terdeteksi melakukan percobaan SQLI
+Traceback (most recent call last):
+  File "/media/rtechs/rusman2/program/py/penjualanGame/fungsi.py", line 96, in submitHistory
+    int(id_store)
+ValueError: invalid literal for int() with base 10: 'dsad'
