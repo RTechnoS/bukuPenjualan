@@ -104,20 +104,12 @@ class Main:
 
 	def changeProduct_type(self, *args):
 		id_product_type = self.raw_product_type[self.combo_product_type.current()][0]
-		#print('\nproduct_type = ', self.raw_product_type[self.combo_product_type.current()])
-
 		self.update_list_product(id_product_type)
 
 	def changeProduct(self, *args):
-		# id_product = self.raw_product[self.combo_product.current()][0]
-		# print('\nid_product = ', id_product)
 		self.update_price(self.raw_product[self.combo_product.current()])
-		#print(self.raw_product[id_product][4])
-		#price = self.list_product
 
 	def changeAmount(self,event):
-		#print(event.__dict__)
-		#print(int(self.harga)*int(self.var_amount.get()))
 		try:
 			j = int(self.var_amount.get())
 		except:
@@ -260,11 +252,10 @@ class Dashboard(Main):
 			elif hasil['code'] == 3:
 				print('error code 3')
 
-			
 		self.update_data()
 
-	def to_winGrafik(self):
 
+	def to_winGrafik(self):
 		Grafik(self.win)
 
 
@@ -357,9 +348,33 @@ class Grafik(Main):
 		hasil = FUNGSI.getHistory(data)
 		
 		pendapatan = 0
+		sum_product_type = {}
+		sum_product = {}
+		sum_via = {}
+	
 		for i in hasil:
 			print(i)
 			pendapatan+=i[6]
+			if i[1] not in sum_product_type:
+				sum_product_type[i[1]] = 1
+			else:
+				sum_product_type[i[1]] += 1
+
+			if i[2] not in sum_product:
+				sum_product[i[2]] = 1
+			else:
+				sum_product[i[2]] += 1
+
+			if i[3] not in sum_via:
+				sum_via[i[3]] = {i[4]:1}
+			else:
+				if i[4] not in sum_via[i[3]]:
+					sum_via[i[3]][i[4]] = 1
+				else:
+					sum_via[i[3]][i[4]] += 1
+
+
+		print(sum_product_type,sum_product,sum_via)
 
 		print('Pendapatan : ', f_price(pendapatan))
 
