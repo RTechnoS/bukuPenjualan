@@ -58,7 +58,7 @@ class Dashboard:
 		self.harga = 0
 
 		self.sty_atas()
-		#self.sty_bawah()
+		self.sty_bawah()
 
 		self.win.mainloop()
 
@@ -76,7 +76,6 @@ class Dashboard:
 		else:
 			self.var_product_type.set('')
 			self.update_list_product(status=False)
-			#self.update_price(status=False)
 
 	def update_list_product(self, id_product_type=1, status=True):
 		if status:
@@ -146,12 +145,18 @@ class Dashboard:
 
 	def sty_atas(self):
 		self.frm_atas = tk.Frame(self.frm_utama)
-		self.frm_atas.pack(fill=tk.BOTH)
+		self.frm_atas.pack(fill=tk.BOTH, expand=True)
 		self.def_frm_option()
 		self.def_frm_product()
 
 		self.__txt_price = tk.Label(self.frm_atas, textvariable=self.var_price, font=("Arial", 45))
 		self.__txt_price.grid(row=3, column=0)
+
+	def sty_bawah(self):
+		self.frm_bawah = tk.Frame(self.frm_utama)
+		self.frm_bawah.pack(fill=tk.BOTH)
+		self.def_frm_menu()
+		
 
 	def def_frm_option(self):
 		frm_detail = tk.Frame(self.frm_atas)
@@ -187,9 +192,6 @@ class Dashboard:
 		self.__combo_via = ttk.Combobox(frm_option, state='readonly',textvariable=self.var_via, values=self.list_via,width=25)
 		self.__combo_via.grid(row=2, column=1)
 
-		# tk.Label(frm_option, text = 'Harga').grid(row=3, column=0, sticky="W", pady=3)
-
-
 		tk.Label(frm_option, text = '          ').grid(row=0, column=2, sticky="W")
 
 		tk.Label(frm_option, text = 'Pembeli').grid(row=0, column=3, sticky="W")
@@ -203,6 +205,13 @@ class Dashboard:
 
 		tk.Button(frm_option, text='Submit', bg='#0086E6', command=self.processSubmit).grid(row=4, column=0, sticky="W", pady=15)
 
+	def def_frm_menu(self):
+		frm_menu = tk.Frame(self.frm_bawah)
+		frm_menu.grid(row=0, column=0)
+		tk.Button(frm_menu,text='Admin', state=tk.NORMAL).grid(row=0, column=0, padx=15)
+		tk.Button(frm_menu,text='Grafik', state=tk.NORMAL, command=self.to_winGrafik).grid(row=0, column=1, padx=15)
+		tk.Button(frm_menu,text='Test', state=tk.NORMAL).grid(row=0, column=2, padx=15)
+		
 
 	def processSubmit(self):
 		data = {}
@@ -222,7 +231,6 @@ class Dashboard:
 									data['time'] = self.var_tanggal.get()
 									data['seller'] = self.var_seller.get()
 									self.sendSubmit(data)
-									
 
 
 	def sendSubmit(self, data):
@@ -245,4 +253,61 @@ class Dashboard:
 			
 		self.update_data()
 
-Dashboard(tk.Tk())
+	def to_winGrafik(self):
+
+		Grafik(self.win)
+
+
+
+class Admin:
+	def __init__(self, Master):
+		pass
+
+
+class Grafik:
+	def __init__(self, Master):
+		self.winGrafik = tk.Toplevel(Master)
+		self.winGrafik.geometry('700x450')
+		self.raw_store = FUNGSI.getStore(q='id_store,name')
+		self.list_store = [f"{i[1]}"for i in self.raw_store]
+		self.var_store = tk.StringVar(); self.var_store.set('')
+
+
+		self.winGrafik.title('Grafik Penjualan')
+		self.sty_atas()
+		self.winGrafik.mainloop()
+
+	def sty_atas(self):
+		self.frm_atas = tk.Frame(self.winGrafik)
+		self.frm_atas.pack()
+		self.def_frm_grafik()
+
+	def def_frm_grafik(self):
+		frm_grafik_atas = tk.Frame(self.frm_atas)
+		frm_grafik_atas.grid(row=0, column=0)
+
+		tk.Label(frm_grafik_atas, text = 'store          ').grid(row=0, column=0, sticky="W")
+		
+		self.__combo_store = ttk.Combobox(frm_grafik_atas, state='readonly', textvariable=self.var_store, values=self.list_store, width=25)
+		self.__combo_store.grid(row=0, column=1)
+		#self.__combo_store.bind('<<ComboboxSelected>>', self.changeStore)
+		
+		tk.Button(frm_grafik_atas, text='Test', command=self.getHistory).grid(row=1, column=0)
+
+	def getHistory(self):
+		data = {}
+		if self.__combo_store.current() >= 0:
+			data['id_store'] = self.raw_store[self.__combo_store.current()][0]
+			if self.__combo_product_type.current() >= 0:
+				data['id_product_type'] = self.raw_product_type[self.__combo_product_type.current()][0]
+				if self.__combo_product.current() >= 0:
+					data['id_product'] = self.raw_product[self.__combo_product.current()][0]
+					if self.__combo_via.current() >= 0:
+						data['id_via'] = self.raw_via[self.__combo_via.current()][0]
+						if int(self.var_amount.get()) > 0:
+
+
+
+
+
+run = Dashboard(tk.Tk())

@@ -97,6 +97,21 @@ class DB:
 			hasil = {'status':False, 'pesan':'Produk tidak ada atau telah habis', 'code':2}
 
 		return hasil
+
+	def getHistory(self, id_store=False, id_product_type=False, id_product=False, id_via=False):
+		q = f'SELECT * FROM history'
+		if id_store:
+			q += f' where id_store={id_store}'
+			if id_product_type:
+				q += f' id_product_type={id_product_type}'
+			if id_product:
+				q += f' id_product={id_product}'
+			if id_via:
+				q += f' id_via={id_via}'
+
+		print(q)
+
+
 	# def testJoinProduct(self, id_store=2):
 	# 	self.__runQuery('SELECT product_type.id_store, product_type.name, product.name, product.price, product.note FROM product_type INNER JOIN product ON product_type.id_product_type = product.id_product_type')
 	# 	return self.__cur.fetchall()
