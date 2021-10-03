@@ -1,0 +1,47 @@
+{
+	'total': {
+		'income': 68153600, 
+		'sold': 16, 
+		'product_type': 2, 
+		'product': 3, 
+		'via': 2
+	}, 
+	'product_type': {
+		'DM ML': {
+			'sold': 10, 
+			'income': 31743600
+		}, 
+		'DM FF': {
+			'sold': 6, 
+			'income': 36410000
+		}
+	}, 
+	'product': {
+		'120 DM': {
+			'sold': 5, 
+			'income': 31650000
+		}, 
+		'16 DM': {
+			'sold': 6, 
+			'income': 36410000
+		}, 
+		'86 DM': {
+			'sold': 5, 
+			'income': 93600
+		}
+	}, 
+	'via': {
+		'DANA': {
+			'kidsgamestore': {
+				'sold': 13, 
+				'income': 68108600
+			}
+		}, 
+		'OVO': {
+			'kidsgamestore': {
+				'sold': 3, 
+				'income': 45000
+			}
+		}
+	}
+}

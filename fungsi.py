@@ -133,23 +133,34 @@ class DB:
 
 	def getHistory(self, data):
 		hasil = ()
+		error = False
+		
 		try:
-			if len(data) != 0:
-				q = f"SELECT history.id_history, product_type.name, product.name, via.service, via.name, history.amount, history.price, history.seller, history.time FROM history INNER JOIN product_type on history.id_product_type = product_type.id_product_type INNER JOIN product on history.id_product = product.id_product INNER JOIN via on history.id_via = via.id_via "
-				
-				if 'id_store' in data:
-					q += " where history.id_store={}".format(int(data['id_store']))
-					if 'id_product_type' in data:
-						q += " and history.id_product_type={}".format(int(data['id_product_type']))
-					if 'id_product' in data:
-						q += " and history.id_product={}".format(int(data['id_product']))
-					if 'id_via' in data:
-						q += " and history.id_via={}".format(int(data['id_via']))
-
-				hasil = self.__runQuery(q)
+			pass
 		except:
-			logging.exception('Terdeteksi melakukan percobaan SQLI')
+			error = True
+
+
+		if error:
 			hasil = ()
+		else:
+			try:
+				if len(data) != 0:
+					q = f"SELECT history.id_history, product_type.name, product.name, via.service, via.name, history.amount, history.price, history.seller, history.time FROM history INNER JOIN product_type on history.id_product_type = product_type.id_product_type INNER JOIN product on history.id_product = product.id_product INNER JOIN via on history.id_via = via.id_via "
+					
+					if 'id_store' in data:
+						q += " where history.id_store={}".format(int(data['id_store']))
+						if 'id_product_type' in data:
+							q += " and history.id_product_type={}".format(int(data['id_product_type']))
+						if 'id_product' in data:
+							q += " and history.id_product={}".format(int(data['id_product']))
+						if 'id_via' in data:
+							q += " and history.id_via={}".format(int(data['id_via']))
+
+					hasil = self.__runQuery(q)
+			except:
+				logging.exception('Terdeteksi melakukan percobaan SQLI')
+				hasil = ()
 
 		return hasil
 
