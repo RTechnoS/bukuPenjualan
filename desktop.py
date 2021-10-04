@@ -7,7 +7,7 @@ from tkinter import ttk, messagebox
 import fungsi, sys
 from datetime import datetime
 
-def f_time(f_jam = "%H:%M:%S", f_hari = '%Y-%m-%d'):
+def f_time(f_jam = "%H:%M:%S", f_hari = '%Y-%m-%d'): #mengembalikan jam dan hari 
 	waktu = datetime.now()
 	return (waktu.strftime(f_jam), waktu.strftime(f_hari)) #jam - hari
 
@@ -263,158 +263,9 @@ class Dashboard(Main):
 		FilterGrafik(self.win)
 
 
-
 class Admin:
 	def __init__(self, Master):
 		pass
-
-class Grafik:
-	def __init__(self, Master, history, data_id, data_text):
-		
-		self.raw_data = history
-		self.winGrafik = tk.Toplevel(Master)
-		#self.winGrafik.geometry('700x500')
-
-		self.var_store = tk.StringVar(); self.var_store.set('')
-		self.var_product_type = tk.StringVar(); self.var_product_type.set('')
-		self.var_product = tk.StringVar(); self.var_product.set('')
-		self.var_via = tk.StringVar(); self.var_via.set('')
-
-		for i in data_text:
-			if i == 'store':
-				self.var_store.set(data_text[i])
-
-			elif i == 'product_type':
-				self.var_product_type.set(data_text[i])
-
-			elif i == 'product':
-				self.var_product.set(data_text[i])
-
-			elif i == 'via':
-				self.var_via.set(data_text[i])
-
-
-		self.winGrafik.title('Show Data')
-		self.sty_atas()
-		self.winGrafik.mainloop()
-
-	def sum_raw_data(self):
-		pendapatan = 0
-		sum_product_type = {}
-		sum_product = {}
-		sum_via = {}
-		hasil = {'total':{}}
-		for i in self.raw_data:
-			pendapatan+=i[6]
-			if i[1] not in sum_product_type:
-				sum_product_type[i[1]] = {'sold':1, 'income':i[6]}
-			else:
-				sum_product_type[i[1]]['sold'] += 1
-				sum_product_type[i[1]]['income'] += i[6]
-
-			if i[2] not in sum_product:
-				sum_product[i[2]] = {'sold':1, 'income':i[6]}
-			else:
-				sum_product[i[2]]['sold'] += 1
-				sum_product[i[2]]['income'] += i[6]
-
-			if i[3] not in sum_via:
-				sum_via[i[3]] = {i[4]:{'sold':1, 'income':i[6]}}
-			else:
-				if i[4] not in sum_via[i[3]]:
-					sum_via[i[3]][i[4]] = {'sold':1, 'income':i[6]}
-				else:
-					sum_via[i[3]][i[4]]['sold'] += 1
-					sum_via[i[3]][i[4]]['income'] += i[6]
-
-		
-		hasil['total']['income'] = pendapatan
-		hasil['total']['sold'] = len(self.raw_data)
-		hasil['total']['product_type'] = len(sum_product_type)
-		hasil['total']['product'] = len(sum_product)
-		hasil['total']['via'] = len(sum_via)
-		hasil['product_type'] = sum_product_type
-		hasil['product'] = sum_product
-		hasil['via'] = sum_via
-
-		print(self.raw_data[0])
-		print(sys.getsizeof(self.raw_data))
-		print(sys.getsizeof(hasil))
-		# print(sum_product_type,sum_product,sum_via)
-
-		# print('Pendapatan : ', f_price(pendapatan))
-
-		# print('\n', '='*70, '\n')
-		return hasil
-
-	def sty_atas(self):
-		self.frm_atas = tk.Frame(self.winGrafik)
-		self.frm_atas.pack(fill=tk.BOTH, expand=True, pady=12, padx=12)
-		self.def_frm_0()
-		self.def_frm_0_1()
-		#tk.Button(self.winFilterGrafik, text='Search', command=self.getHistoryFilter).pack(pady=3, fill=tk.BOTH, padx=12)
-
-	def def_frm_0(self):
-		frm_0 = tk.Frame(self.frm_atas)
-		frm_0.grid(row=0, column=0)
-
-		tk.Label(frm_0, text='Toko ').grid(row=0, column=0, sticky="W")
-		tk.Label(frm_0, text=' : ').grid(row=0, column=1, sticky="W")
-		tk.Label(frm_0, textvariable=self.var_store).grid(row=0, column=2, sticky="W")
-
-		tk.Label(frm_0, text='Type ').grid(row=1, column=0, sticky="W")
-		tk.Label(frm_0, text=' : ').grid(row=1, column=1, sticky="W")
-		tk.Label(frm_0, textvariable=self.var_product_type).grid(row=1, column=2, sticky="W")
-
-		tk.Label(frm_0, text='Product ').grid(row=2, column=0, sticky="W")
-		tk.Label(frm_0, text=' : ').grid(row=2, column=1, sticky="W")
-		tk.Label(frm_0, textvariable=self.var_product).grid(row=2, column=2, sticky="W")
-
-		tk.Label(frm_0, text='Pembayaran ').grid(row=3, column=0, sticky="W")
-		tk.Label(frm_0, text=' : ').grid(row=3, column=1, sticky="W")
-		tk.Label(frm_0, textvariable=self.var_via).grid(row=3, column=2, sticky="W")
-		self.sum_data = self.sum_raw_data()
-		print(self.sum_data)
-		
-
-	def generate_chartPie(self,data, title=''):
-		fig = Figure(figsize = (2,2), dpi = 110)
-		plot1 = fig.add_subplot(111)
-		plot1.pie(data[0], labels = data[1], autopct='%.1f%%',wedgeprops={'linewidth': 2.0, 'edgecolor': 'white'},
-       textprops={'size': 'x-small'})
-		plot1.set_title(title, fontsize=7)
-		return fig
-
-	def def_frm_0_1(self):
-		frm_0_1 = tk.Frame(self.frm_atas)
-		frm_0_1.grid(row=0, column=1, padx=20)
-		list_product_type = [[],[]]
-		for i in self.sum_data['product_type']:
-		    list_product_type[0].append(self.sum_data['product_type'][i]['income'])
-		    list_product_type[1].append(i)
-		plot_product_type = self.generate_chartPie(list_product_type,'Tipe Produk terlaris')
-		#p.show()
-		canvas_product_type = FigureCanvasTkAgg(plot_product_type, frm_0_1)
-		canvas_product_type.get_tk_widget().grid(row=0, column=0, padx=20)
-
-		list_via = [[],[]]
-		for i in self.sum_data['via']:
-		    for j in self.sum_data['via'][i]:
-		        list_via[0].append(self.sum_data['via'][i][j]['income'])
-		        list_via[1].append(f'{i} {j}')
-		print(list_via)
-		plot_via = self.generate_chartPie(list_via, 'Pembayaran')
-		canvas_via = FigureCanvasTkAgg(plot_via, frm_0_1)
-		canvas_via.get_tk_widget().grid(row=0, column=1, padx=20)
-		#for i in
-		    
-
-
-
-
-
-
-
 
 
 class FilterGrafik(Main):
@@ -501,6 +352,139 @@ class FilterGrafik(Main):
 		self.winFilterGrafik.destroy()
 		Grafik(self.master, history, data_id, data_text)
 
+
+class Grafik:
+	def __init__(self, Master, history, data_id, data_text):
+		
+		self.raw_data = history
+		self.winGrafik = tk.Toplevel(Master)
+		#self.winGrafik.geometry('700x500')
+
+		self.var_store = tk.StringVar(); self.var_store.set('')
+		self.var_product_type = tk.StringVar(); self.var_product_type.set('')
+		self.var_product = tk.StringVar(); self.var_product.set('')
+		self.var_via = tk.StringVar(); self.var_via.set('')
+
+		for i in data_text:
+			if i == 'store':
+				self.var_store.set(data_text[i])
+
+			elif i == 'product_type':
+				self.var_product_type.set(data_text[i])
+
+			elif i == 'product':
+				self.var_product.set(data_text[i])
+
+			elif i == 'via':
+				self.var_via.set(data_text[i])
+
+
+		self.winGrafik.title('Show Data')
+		self.sty_atas()
+		self.winGrafik.mainloop()
+
+	def sum_raw_data(self):
+		pendapatan = 0
+		sum_product_type = {}
+		sum_product = {}
+		sum_via = {}
+		hasil = {'total':{}}
+		for i in self.raw_data:
+			pendapatan+=i[6]
+			if i[1] not in sum_product_type:
+				sum_product_type[i[1]] = {'sold':1, 'income':i[6]}
+			else:
+				sum_product_type[i[1]]['sold'] += 1
+				sum_product_type[i[1]]['income'] += i[6]
+
+			if i[2] not in sum_product:
+				sum_product[i[2]] = {'sold':1, 'income':i[6]}
+			else:
+				sum_product[i[2]]['sold'] += 1
+				sum_product[i[2]]['income'] += i[6]
+
+			if i[3] not in sum_via:
+				sum_via[i[3]] = {i[4]:{'sold':1, 'income':i[6]}}
+			else:
+				if i[4] not in sum_via[i[3]]:
+					sum_via[i[3]][i[4]] = {'sold':1, 'income':i[6]}
+				else:
+					sum_via[i[3]][i[4]]['sold'] += 1
+					sum_via[i[3]][i[4]]['income'] += i[6]
+
+		
+		hasil['total']['income'] = pendapatan
+		hasil['total']['sold'] = len(self.raw_data)
+		hasil['total']['product_type'] = len(sum_product_type)
+		hasil['total']['product'] = len(sum_product)
+		hasil['total']['via'] = len(sum_via)
+		hasil['product_type'] = sum_product_type
+		hasil['product'] = sum_product
+		hasil['via'] = sum_via
+
+		print(self.raw_data[0])
+		# print(sys.getsizeof(self.raw_data))
+		# print(sys.getsizeof(hasil))
+
+		return hasil
+
+	def sty_atas(self):
+		self.frm_atas = tk.Frame(self.winGrafik)
+		self.frm_atas.pack(fill=tk.BOTH, expand=True, pady=12, padx=12)
+		self.def_frm_0()
+		self.def_frm_0_1()
+
+	def def_frm_0(self):
+		frm_0 = tk.Frame(self.frm_atas)
+		frm_0.grid(row=0, column=0)
+
+		tk.Label(frm_0, text='Toko ').grid(row=0, column=0, sticky="W")
+		tk.Label(frm_0, text=' : ').grid(row=0, column=1, sticky="W")
+		tk.Label(frm_0, textvariable=self.var_store).grid(row=0, column=2, sticky="W")
+
+		tk.Label(frm_0, text='Type ').grid(row=1, column=0, sticky="W")
+		tk.Label(frm_0, text=' : ').grid(row=1, column=1, sticky="W")
+		tk.Label(frm_0, textvariable=self.var_product_type).grid(row=1, column=2, sticky="W")
+
+		tk.Label(frm_0, text='Product ').grid(row=2, column=0, sticky="W")
+		tk.Label(frm_0, text=' : ').grid(row=2, column=1, sticky="W")
+		tk.Label(frm_0, textvariable=self.var_product).grid(row=2, column=2, sticky="W")
+
+		tk.Label(frm_0, text='Pembayaran ').grid(row=3, column=0, sticky="W")
+		tk.Label(frm_0, text=' : ').grid(row=3, column=1, sticky="W")
+		tk.Label(frm_0, textvariable=self.var_via).grid(row=3, column=2, sticky="W")
+
+		self.sum_data = self.sum_raw_data()
+		print(self.sum_data)
+
+	def def_frm_0_1(self):
+		frm_0_1 = tk.Frame(self.frm_atas)
+		frm_0_1.grid(row=0, column=1, padx=20)
+
+		fig = Figure(figsize = (5,1.5), dpi = 150)
+		list_product_type = [[],[]]
+		list_via = [[],[]]
+		
+		for i in self.sum_data['product_type']:
+		    list_product_type[0].append(self.sum_data['product_type'][i]['income'])
+		    list_product_type[1].append(i)
+
+		for i in self.sum_data['via']:
+		    for j in self.sum_data['via'][i]:
+		        list_via[0].append(self.sum_data['via'][i][j]['income'])
+		        list_via[1].append(f'{i} {j}')
+
+		plot_product_type = fig.add_subplot(131)
+		plot_product_type.pie(list_product_type[0], labels = list_product_type[1], autopct='%.1f%%',wedgeprops={'linewidth': 2.0, 'edgecolor': 'white'}, textprops={'size': 'x-small'})
+		plot_product_type.set_title('Tipe Produk', fontsize=7)
+
+		plot_via = fig.add_subplot(133)
+		plot_via.pie(list_via[0], labels = list_via[1], autopct='%.1f%%',wedgeprops={'linewidth': 2.0, 'edgecolor': 'white'}, textprops={'size': 'x-small'})
+		plot_via.set_title('Pembayaran', fontsize=7)
+
+		canvas_plot = FigureCanvasTkAgg(fig, frm_0_1)
+		canvas_plot.get_tk_widget().grid(row=0, column=1, padx=20)
+		#for i in
 
 
 Dashboard(tk.Tk())
