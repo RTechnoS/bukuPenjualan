@@ -137,20 +137,11 @@ class Dashboard(Main):
 		self.frm_utama = tk.Frame(self.win)
 		self.frm_utama.pack(fill=tk.BOTH, expand=True, padx=15, pady=15)
 
-		self.sty_atas()
-		self.sty_bawah()
+		self.sty_top()
+		self.sty_bottom()
 
 		self.win.mainloop()
-
-	def sty_atas(self):
-		self.frm_atas = tk.Frame(self.frm_utama)
-		self.frm_atas.pack(fill=tk.BOTH, expand=True)
-		self.def_frm_option()
-		self.def_frm_product()
-
-		self.txt_price = tk.Label(self.frm_atas, textvariable=self.var_price, font=("Arial", 45))
-		self.txt_price.grid(row=3, column=0)
-
+	
 	def update_price(self, data_product={}, status=True):
 		self.var_amount.set(1)
 		if status:
@@ -158,14 +149,24 @@ class Dashboard(Main):
 		else:
 			self.harga = 0
 		self.var_price.set(f_price(self.harga))
-	def sty_bawah(self):
-		self.frm_bawah = tk.Frame(self.frm_utama)
-		self.frm_bawah.pack(fill=tk.BOTH)
+
+	def sty_top(self):
+		self.frm_top = tk.Frame(self.frm_utama)
+		self.frm_top.pack(fill=tk.BOTH, expand=True)
+		self.def_frm_option()
+		self.def_frm_product()
+
+		self.txt_price = tk.Label(self.frm_top, textvariable=self.var_price, font=("Arial", 45))
+		self.txt_price.grid(row=3, column=0)
+
+	def sty_bottom(self):
+		self.frm_bottom = tk.Frame(self.frm_utama)
+		self.frm_bottom.pack(fill=tk.BOTH)
 		self.def_frm_menu()
 		
 
 	def def_frm_option(self):
-		frm_detail = tk.Frame(self.frm_atas)
+		frm_detail = tk.Frame(self.frm_top)
 		frm_detail.grid(row=0, column=0, sticky="W")
 
 		tk.Label(frm_detail, text = 'store          ').grid(row=0, column=0, sticky="W")
@@ -181,7 +182,7 @@ class Dashboard(Main):
 		self.txt_tanggal.grid(row=0, column=4)
 
 	def def_frm_product(self):
-		frm_option = tk.Frame(self.frm_atas)
+		frm_option = tk.Frame(self.frm_top)
 		frm_option.grid(row=1, column=0, pady=20)
 
 		tk.Label(frm_option, text = 'Jenis').grid(row=0, column=0, sticky="W", pady=3)
@@ -212,7 +213,7 @@ class Dashboard(Main):
 		tk.Button(frm_option, text='Submit', bg='#0086E6', command=self.processSubmit).grid(row=4, column=0, sticky="W", pady=15)
 
 	def def_frm_menu(self):
-		frm_menu = tk.Frame(self.frm_bawah)
+		frm_menu = tk.Frame(self.frm_bottom)
 		frm_menu.grid(row=0, column=0)
 		tk.Button(frm_menu,text='Admin', state=tk.NORMAL).grid(row=0, column=0, padx=15)
 		tk.Button(frm_menu,text='Grafik', state=tk.NORMAL, command=self.to_winGrafik).grid(row=0, column=1, padx=15)
@@ -281,18 +282,18 @@ class FilterGrafik(Main):
 		self.var_cekbox_via = tk.IntVar()
 
 		self.winFilterGrafik.title('Filter Grafik')
-		self.sty_atas()
+		self.sty_top()
 		self.winFilterGrafik.mainloop()
 
-	def sty_atas(self):
-		self.frm_atas = tk.Frame(self.winFilterGrafik)
-		self.frm_atas.pack(fill=tk.BOTH, expand=True, pady=12, padx=12)
+	def sty_top(self):
+		self.frm_top = tk.Frame(self.winFilterGrafik)
+		self.frm_top.pack(fill=tk.BOTH, expand=True, pady=12, padx=12)
 		self.def_frm_grafik()
 		tk.Button(self.winFilterGrafik, text='Search', command=self.getHistoryFilter).pack(pady=3, fill=tk.BOTH, padx=12)
 
 
 	def def_frm_grafik(self):
-		frm_grafik_atas = tk.Frame(self.frm_atas)
+		frm_grafik_atas = tk.Frame(self.frm_top)
 		frm_grafik_atas.grid(row=0, column=0)
 
 		tk.Label(frm_grafik_atas, text = 'store          ').grid(row=0, column=0, sticky="W")
@@ -380,7 +381,10 @@ class Grafik:
 
 
 		self.winGrafik.title('Show Data')
-		self.sty_atas()
+		self.sum_data = self.sum_raw_data()
+		self.sty_top()
+		self.sty_center()
+		self.sty_bottom()
 		self.winGrafik.mainloop()
 
 	def sum_raw_data(self):
@@ -422,46 +426,121 @@ class Grafik:
 		hasil['product'] = sum_product
 		hasil['via'] = sum_via
 
-		print(self.raw_data[0])
+		#print(self.raw_data[0])
 		# print(sys.getsizeof(self.raw_data))
 		# print(sys.getsizeof(hasil))
 
 		return hasil
 
-	def sty_atas(self):
-		self.frm_atas = tk.Frame(self.winGrafik)
-		self.frm_atas.pack(fill=tk.BOTH, expand=True, pady=12, padx=12)
-		self.def_frm_0()
-		self.def_frm_0_1()
+	def generate_treeView(self, window, data, scroll=(0,3), size=[20,20]):
+		raw_data, column_name, column_title, column_size = data
+		sRow, sCol = scroll
+		style = ttk.Style(window)
+		style.configure('Treeview', rowheight=size[0], height=size[1])
 
-	def def_frm_0(self):
-		frm_0 = tk.Frame(self.frm_atas)
+		treeView = ttk.Treeview(window)
+		treeView.config(columns=column_name, show = "headings")
+		
+		for c_data, c_title, c_size in zip(column_name, column_title, column_size):
+			treeView.heading(c_data, text=c_title)
+			treeView.column(c_data, width=c_size)
+
+		for num, val in enumerate(raw_data):
+			treeView.insert('','end', values=val)
+
+		scroll_treeView = ttk.Scrollbar(window, orient="vertical", command=treeView.yview)
+		scroll_treeView.grid(row=sRow, column=sCol,sticky=tk.N+tk.S)
+		treeView.configure(yscrollcommand=scroll_treeView.set)
+
+		return treeView
+
+	def sty_top(self):
+		self.frm_top = tk.Frame(self.winGrafik)
+		self.frm_top.pack(fill=tk.BOTH, expand=True, pady=12, padx=12)
+		self.def_frm_0_top()
+		self.def_frm_1_top()
+
+	def sty_center(self):
+		self.frm_center = tk.Frame(self.winGrafik)
+		self.frm_center.pack(fill=tk.BOTH, expand=True, pady=5, padx=5)
+		self.def_frm_0_center()
+
+	def sty_bottom(self):
+		self.frm_bottom = tk.Frame(self.winGrafik)
+		self.frm_bottom.pack(fill=tk.BOTH)
+		self.def_frm_0_bottom()
+		#self.def_frm
+
+	def def_frm_0_top(self):
+		frm_0 = tk.Frame(self.frm_top)
 		frm_0.grid(row=0, column=0)
 
-		tk.Label(frm_0, text='Toko ').grid(row=0, column=0, sticky="W")
-		tk.Label(frm_0, text=' : ').grid(row=0, column=1, sticky="W")
-		tk.Label(frm_0, textvariable=self.var_store).grid(row=0, column=2, sticky="W")
+		frm_0_0 = tk.Frame(frm_0)
+		frm_0_0.grid(row=0, column=0, pady=17, sticky="W")
 
-		tk.Label(frm_0, text='Type ').grid(row=1, column=0, sticky="W")
-		tk.Label(frm_0, text=' : ').grid(row=1, column=1, sticky="W")
-		tk.Label(frm_0, textvariable=self.var_product_type).grid(row=1, column=2, sticky="W")
+		frm_0_1 = tk.Frame(frm_0)
+		frm_0_1.grid(row=1, column=0, pady=25, sticky="W")
+		
+		tk.Label(frm_0_0, text='Pemasukan ').grid(row=0, column=0, sticky="W")
+		tk.Label(frm_0_0, text=' : ').grid(row=0, column=1, sticky="W")
+		tk.Label(frm_0_0, text=f_price(self.sum_data['total']['income'])).grid(row=0, column=2, sticky="W")
 
-		tk.Label(frm_0, text='Product ').grid(row=2, column=0, sticky="W")
-		tk.Label(frm_0, text=' : ').grid(row=2, column=1, sticky="W")
-		tk.Label(frm_0, textvariable=self.var_product).grid(row=2, column=2, sticky="W")
+		tk.Label(frm_0_0, text='Terjual ').grid(row=1, column=0, sticky="W")
+		tk.Label(frm_0_0, text=' : ').grid(row=1, column=1, sticky="W")
+		tk.Label(frm_0_0, text=self.sum_data['total']['sold']).grid(row=1, column=2, sticky="W")
 
-		tk.Label(frm_0, text='Pembayaran ').grid(row=3, column=0, sticky="W")
-		tk.Label(frm_0, text=' : ').grid(row=3, column=1, sticky="W")
-		tk.Label(frm_0, textvariable=self.var_via).grid(row=3, column=2, sticky="W")
+		tk.Label(frm_0_1, text='Toko ').grid(row=1, column=0, sticky="W")
+		tk.Label(frm_0_1, text=' : ').grid(row=1, column=1, sticky="W")
+		tk.Label(frm_0_1, textvariable=self.var_store).grid(row=1, column=2, sticky="W")
 
-		self.sum_data = self.sum_raw_data()
+		tk.Label(frm_0_1, text='Type ').grid(row=2, column=0, sticky="W")
+		tk.Label(frm_0_1, text=' : ').grid(row=2, column=1, sticky="W")
+		tk.Label(frm_0_1, textvariable=self.var_product_type).grid(row=2, column=2, sticky="W")
+
+		tk.Label(frm_0_1, text='Product ').grid(row=3, column=0, sticky="W")
+		tk.Label(frm_0_1, text=' : ').grid(row=3, column=1, sticky="W")
+		tk.Label(frm_0_1, textvariable=self.var_product).grid(row=3, column=2, sticky="W")
+
+		tk.Label(frm_0_1, text='Pembayaran ').grid(row=4, column=0, sticky="W")
+		tk.Label(frm_0_1, text=' : ').grid(row=4, column=1, sticky="W")
+		tk.Label(frm_0_1, textvariable=self.var_via).grid(row=4, column=2, sticky="W")
+
 		print(self.sum_data)
 
-	def def_frm_0_1(self):
-		frm_0_1 = tk.Frame(self.frm_atas)
-		frm_0_1.grid(row=0, column=1, padx=20)
 
-		fig = Figure(figsize = (5,1.5), dpi = 150)
+	def def_frm_1_top(self):
+		frm_1 = tk.Frame(self.frm_top)
+		frm_1.grid(row=0, column=2, padx=15)
+
+		list_product_type = []
+		for i in self.sum_data['product_type']:
+			list_product_type.append([i, self.sum_data['product_type'][i]['sold'], f_price(self.sum_data['product_type'][i]['income'])])
+
+		list_product = []
+		for i in self.sum_data['product']:
+			list_product.append([i, self.sum_data['product'][i]['sold'], f_price(self.sum_data['product'][i]['income'])])
+
+		list_via =  []
+		for i in self.sum_data['via']:
+			for j in self.sum_data['via'][i]:
+				list_via.append([f"{i} {j}", self.sum_data['via'][i][j]['sold'], f_price(self.sum_data['via'][i][j]['income'])])
+
+
+		tree_product_type = self.generate_treeView(frm_1,(list_product_type, ['name','sold','income'], ['Nama', 'Terjual', 'Pemasukan'], [80,80,90]))
+		tree_product_type.grid(row=0, column=0, sticky='nsew')
+
+		tree_product = self.generate_treeView(frm_1,(list_product,['name','sold','income'], ['Nama', 'Terjual', 'Pemasukan'], [80,80,90]))
+		tree_product.grid(row=0, column=1, sticky='nsew')
+
+		tree_via = self.generate_treeView(frm_1,(list_via, ['name','sold','income'], ['Nama', 'Terjual', 'Pemasukan'], [80,80,90]))
+		tree_via.grid(row=0, column=2, sticky='nsew')
+
+
+	def def_frm_0_center(self):
+		frm_1 = tk.Frame(self.frm_center)
+		frm_1.grid(row=0, column=1)
+
+		fig = Figure(figsize = (6,1.5), dpi = 150)
 		list_product_type = [[],[]]
 		list_via = [[],[]]
 		
@@ -482,9 +561,17 @@ class Grafik:
 		plot_via.pie(list_via[0], labels = list_via[1], autopct='%.1f%%',wedgeprops={'linewidth': 2.0, 'edgecolor': 'white'}, textprops={'size': 'x-small'})
 		plot_via.set_title('Pembayaran', fontsize=7)
 
-		canvas_plot = FigureCanvasTkAgg(fig, frm_0_1)
-		canvas_plot.get_tk_widget().grid(row=0, column=1, padx=20)
+		canvas_plot = FigureCanvasTkAgg(fig, frm_1)
+		canvas_plot.get_tk_widget().grid(row=0, column=0, padx=20)
+
 		#for i in
 
+	def def_frm_0_bottom(self):
+		frm_0 = tk.Frame(self.frm_bottom)
+		frm_0.grid(row=0, column=0, pady=20, padx=20)
+		title = ('Id', 'Type Product', 'Product', 'Via Service', 'Via Name', 'Jumlah', 'Total', 'Pembeli', 'Waktu')
+		size = (40, 110, 110, 100, 125, 60,100, 100,160)
+		tree_history = self.generate_treeView(frm_0, (self.raw_data, ('id', 'type', 'product', 'via_service', 'via_name', 'amount', 'price', 'seller','time'), title, size))
+		tree_history.grid(row=0, column=0,columnspan=3)
 
 Dashboard(tk.Tk())
