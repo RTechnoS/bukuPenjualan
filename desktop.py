@@ -1,40 +1,15 @@
 import tkinter as tk
-import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import ttk, messagebox
 
 import fungsi, sys
-from datetime import datetime
-
-def f_time(f_jam = "%H:%M:%S", f_hari = '%Y-%m-%d'): #mengembalikan jam dan hari 
-	waktu = datetime.now()
-	return (waktu.strftime(f_jam), waktu.strftime(f_hari)) #jam - hari
-
-def f_price(jumlah): #mengubah angka contoh : 3200000 menjadi 3.200.000
-	jumlah = str(jumlah)
-	
-	dt = []
-	pjg = len(jumlah)
-	p = jumlah
-	if pjg > 3:
-		sisa = pjg % 3
-		jml = pjg //3
-		if sisa != 0:
-			dt.append(p[:sisa])
-			p = p[sisa:]
-
-		for i in range(jml):
-			dt.append(p[:3])
-			p = p[3:]
-		jumlah = '.'.join(dt)
-	return jumlah
 
 FUNGSI = fungsi.Main()
 
 class Main:
 	def __init__(self):
-		self.waktu, self.hari = f_time()
+		self.waktu, self.hari = fungsi.f_time()
 		self.raw_store = FUNGSI.getStore(q='singkat')
 		self.list_store = [f"{i[1]}"for i in self.raw_store]
 
@@ -47,7 +22,7 @@ class Main:
 		self.var_product_type = tk.StringVar(); self.var_product_type.set('')
 		self.var_product = tk.StringVar(); self.var_product.set('')
 		self.var_via = tk.StringVar(); self.var_via.set('')
-		self.var_price = tk.StringVar(); self.var_price.set(f_price(0))
+		self.var_price = tk.StringVar(); self.var_price.set(fungsi.f_price(0))
 		self.var_amount = tk.StringVar(); self.var_amount.set(1)
 		self.var_seller = tk.StringVar(); self.var_seller.set('')
 		self.harga = 0
@@ -98,7 +73,7 @@ class Main:
 			self.harga = data_product[4]
 		else:
 			self.harga = 0
-		self.var_price.set(f_price(self.harga))
+		self.var_price.set(fungsi.f_price(self.harga))
 
 	def changeStore(self, *args):
 		id_store = self.raw_store[self.combo_store.current()][0]
@@ -120,7 +95,7 @@ class Main:
 			j = 1
 			self.var_amount.set(1)
 
-		self.var_price.set(f_price(int(self.harga)*j))
+		self.var_price.set(fungsi.f_price(int(self.harga)*j))
 
 
 ################### Bagian window utama ###########################
@@ -148,7 +123,7 @@ class Dashboard(Main):
 			self.harga = data_product[4]
 		else:
 			self.harga = 0
-		self.var_price.set(f_price(self.harga))
+		self.var_price.set(fungsi.f_price(self.harga))
 
 	def sty_top(self):
 		self.frm_top = tk.Frame(self.frm_utama)
@@ -243,7 +218,7 @@ class Dashboard(Main):
 	def sendSubmit(self, data):
 		hasil = FUNGSI.submitHistory(data['id_store'], data['id_product_type'],data['id_product'], data['id_via'], data['price'], data['time'], data['amount'], data['seller'])
 		if hasil['status']:
-			print('\033[1;37;44m[DONE]\033[0m ', hasil['time'], ' Total ', f_price(hasil['price']))
+			print('\033[1;37;44m[DONE]\033[0m ', hasil['time'], ' Total ', fungsi.f_price(hasil['price']))
 			messagebox.showinfo('Succes', 'Submit Succes')
 		else:
 			print('\033[1;37;41m[FAIL]\033[0m ', hasil['pesan'])
@@ -483,7 +458,7 @@ class Grafik:
 		
 		tk.Label(frm_0_0, text='Pemasukan ').grid(row=0, column=0, sticky="W")
 		tk.Label(frm_0_0, text=' : ').grid(row=0, column=1, sticky="W")
-		tk.Label(frm_0_0, text=f_price(self.sum_data['total']['income'])).grid(row=0, column=2, sticky="W")
+		tk.Label(frm_0_0, text=fungsi.f_price(self.sum_data['total']['income'])).grid(row=0, column=2, sticky="W")
 
 		tk.Label(frm_0_0, text='Terjual ').grid(row=1, column=0, sticky="W")
 		tk.Label(frm_0_0, text=' : ').grid(row=1, column=1, sticky="W")
@@ -514,16 +489,16 @@ class Grafik:
 
 		list_product_type = []
 		for i in self.sum_data['product_type']:
-			list_product_type.append([i, self.sum_data['product_type'][i]['sold'], f_price(self.sum_data['product_type'][i]['income'])])
+			list_product_type.append([i, self.sum_data['product_type'][i]['sold'], fungsi.f_price(self.sum_data['product_type'][i]['income'])])
 
 		list_product = []
 		for i in self.sum_data['product']:
-			list_product.append([i, self.sum_data['product'][i]['sold'], f_price(self.sum_data['product'][i]['income'])])
+			list_product.append([i, self.sum_data['product'][i]['sold'], fungsi.f_price(self.sum_data['product'][i]['income'])])
 
 		list_via =  []
 		for i in self.sum_data['via']:
 			for j in self.sum_data['via'][i]:
-				list_via.append([f"{i} {j}", self.sum_data['via'][i][j]['sold'], f_price(self.sum_data['via'][i][j]['income'])])
+				list_via.append([f"{i} {j}", self.sum_data['via'][i][j]['sold'], fungsi.f_price(self.sum_data['via'][i][j]['income'])])
 
 
 		tree_product_type = self.generate_treeView(frm_1,(list_product_type, ['name','sold','income'], ['Nama', 'Terjual', 'Pemasukan'], [80,80,90]))
@@ -574,4 +549,5 @@ class Grafik:
 		tree_history = self.generate_treeView(frm_0, (self.raw_data, ('id', 'type', 'product', 'via_service', 'via_name', 'amount', 'price', 'seller','time'), title, size))
 		tree_history.grid(row=0, column=0,columnspan=3)
 
-Dashboard(tk.Tk())
+if __name__ == "__main__":
+	Dashboard(tk.Tk())

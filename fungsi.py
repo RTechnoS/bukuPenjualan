@@ -6,15 +6,34 @@ import sys
 
 logging.basicConfig(format='[%(asctime)s] %(levelname)-8s: %(message)s',datefmt="%Y-%m-%d %H:%M:%S", level=logging.INFO, handlers=[logging.FileHandler('./log.log'), logging.StreamHandler(sys.stdout)])
 
+def f_time(f_jam = "%H:%M:%S", f_hari = '%Y-%m-%d'): #mengembalikan jam dan hari 
+	waktu = datetime.now()
+	return (waktu.strftime(f_jam), waktu.strftime(f_hari)) #jam - hari
+
+def f_price(num): #mengubah angka contoh : 3200000 menjadi 3.200.000
+	num = str(num)
+	
+	dt = []
+	len_num = len(num)
+	p = num
+	if len_num > 3:
+		sisa = len_num % 3
+		jml = len_num //3
+		if sisa != 0:
+			dt.append(p[:sisa])
+			p = p[sisa:]
+
+		for i in range(jml):
+			dt.append(p[:3])
+			p = p[3:]
+		num = '.'.join(dt)
+	return num
+
 def to_dict_index(data):
 	h = {}
 	for i in data:
 		h[i[0]] = i
 	return h
-
-def f_time(f_jam = "%H:%M:%S", f_hari = '%Y-%m-%d'):
-	waktu = datetime.now()
-	return (waktu.strftime(f_jam), waktu.strftime(f_hari)) #jam - hari
 
 class DB:
 	def __init__(self, dbLok='testing.db'):
@@ -170,11 +189,6 @@ class DB:
 # INNER JOIN product on history.id_product = product.id_product
 # INNER JOIN via on history.id_via = via.id_via 
 # where history.id_store = 2
-
-
-	# def testJoinProduct(self, id_store=2):
-	# 	self.__runQuery('SELECT product_type.id_store, product_type.name, product.name, product.price, product.note FROM product_type INNER JOIN product ON product_type.id_product_type = product.id_product_type')
-	# 	return self.__cur.fetchall()
 
 
 class Main(DB):
